@@ -21,7 +21,6 @@ RUN apt-get -y update && apt-get install -y --no-install-recommends \
 # image, which reduces start up time.
 RUN wget https://bootstrap.pypa.io/get-pip.py && python get-pip.py && \
     pip install numpy==1.15.0 scipy scikit-learn pandas flask gevent gunicorn && \
-        (cd /usr/local/lib/python2.7/dist-packages/scipy/.libs; rm *; ln ../../numpy/.libs/* .) && \
         rm -rf /root/.cache
 
 # Set some environment variables. PYTHONUNBUFFERED keeps Python from buffering our standard
@@ -36,4 +35,5 @@ ENV PATH="/opt/program:${PATH}"
 # Set up the program in the image
 COPY decision_trees /opt/program
 WORKDIR /opt/program
+
 
