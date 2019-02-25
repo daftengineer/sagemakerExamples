@@ -1,0 +1,43 @@
+from keras.models import Sequential
+from keras.layers import Dense
+from keras.optimizers import SGD
+import matplotlib.pyplot as plt
+from keras.datasets import cifar10
+from keras.utils import np_utils
+import os
+import json
+import pickle
+import sys
+prefix = '/opt/ml/'
+model_path = os.path.join(prefix, 'model')
+channel_name='training'
+training_path = os.path.join(prefix, channel_name)
+
+def train():
+    (xtrain,ytrain),(xtest,ytest) = cifar10.load_data()
+    print('xtrain.shape',xtrain.shape)
+    print('ytrain.shape',ytrain.shape)
+    batchsize=200
+    cats = 10
+    nepoch = 100
+    xtrain = xtrain.reshape(50000,3072)
+    xtest = xtest.reshape(10000,3072)
+    xtrain = xtrain/255
+    xtest = xtest/255
+    ytrain = np_utils.to_categorical(ytrain,cats)
+    ytest = np_utils.to_categorical(ytest,cats)
+
+    model = Sequential()
+    model.add(Dense(units=10,input_shape=(3072,),activation='softmax',kernel_initializer='normal'))
+    model.compile(loss='categorical_crossentropy', optimizer=SGD(lr=0.05), metrics=['accuracy'])
+    model.summary()
+    fittedModel = model.fit(xtrain, ytrain, nb_epoch=nepoch, batch_size=batchsize, verbose=1)
+    with open(os.path.join(model_path, 'kerasmodel.pkl'), 'w') as out:
+        pickle.dump(fittedModel, out)
+    print('Training complete.')
+
+if __name__ == '__main__':
+    train()
+
+    # A zero exit code causes the job to be marked a Succeeded.
+    sys.exit(0)
